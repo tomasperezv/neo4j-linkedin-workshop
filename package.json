@@ -12,5 +12,8 @@
     "linkedin"
   ],
   "author": "t@0x101.com",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "node-linkedin": "^0.5.6"
+  }
 }
