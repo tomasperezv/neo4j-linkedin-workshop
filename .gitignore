@@ -58,4 +58,4 @@ typings/
 .env
 
 # Avoid commit configuration secrets by mistake
-./config/*.json
+/config/*.json
