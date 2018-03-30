@@ -28,7 +28,7 @@ npm install
 3. Add an authorized redirect URL with the value `http://localhost:3232/linkedin-workshop/callback`
 4. Copy the Client ID` and `Client Secret` values
 
-### Fill the package.json configuration
+### Complete the configuration files
 
 Copy the configuration file `./config/my-linkedin-app.json-example` to
 `./config/my-linkedin-app.json` and edit it, adding the values obtained
