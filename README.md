@@ -43,7 +43,7 @@ $ cp ./config/my-linkedin-app.json-example ./config/my-linkedin-app.json
   "clientId": "",
   "clientSecret": "",
   "redirectUri": "http://localhost:3232/linkedin-workshop/callback",
-  "accessToken"
+  "accessToken": ""
 }
 ```
 
@@ -86,3 +86,13 @@ const Linkedin = require('node-linkedin')('app-id', 'secret', 'callback');
 Here we are initializing the API client with the `Client ID`, `Client Secret` and `Authorized Redirect URL`
 
 Those values are taken from environment variables: `APP_ID`, `SECRET`, `CALLBACK`, so you will require to pass them when running the script.
+
+### Generate an access token for the Github API
+
+Go to [Personal access tokens section](https://github.com/settings/tokens) and add a new access token to be able to access to the github API.
+
+```bash
+$ cp ./config/github.json-example ./config/github.json
+```
+
+Update `./config/github.json` with the generated token.
