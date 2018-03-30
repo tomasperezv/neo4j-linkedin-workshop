@@ -4,20 +4,36 @@
  * @see https://developer.linkedin.com/docs/oauth2
  * @see https://www.npmjs.com/package/node-linkedin
  */
+const fs = require('fs');
+const csv = require('csv-parser');
+const csvWriter = require('csv-write-stream');
 const config = require('./config/my-linkedin-app.json');
+
+const writer = csvWriter();
+writer.pipe(fs.createWriteStream('./dataset/network.csv'));
 
 const Linkedin = require('node-linkedin')(config.clientId, config.clientSecret, config.redirectUri);
 
-const linkedinApiClient = Linkedin.init(config.accessToken, { mobileToken: 'mobile' });
+const linkedinApiClient = Linkedin.init(config.accessToken);
 
-linkedinApiClient.people.me(['id', 'first-name', 'last-name'], function(err, ind) {
-  // Loads the profile of access token owner. 
-  console.log(err);
-  console.log(ind);
-});
+let count = 0;
 
-//linkedinApiClient.companies.name('linkedin', function(err, company) {
-//  // Here you go 
-//  console.log(err);
-//  console.log(company);
-//});
+fs.createReadStream('./dataset/startups1.csv')
+  .pipe(csv())
+  .on('data', (company) => {
+    linkedinApiClient.companies_search.name(company.name, 1, function(err, result) {
+      console.log('Processing ' + company.name);
+      console.log(result);
+      if (result && result.companies && result.companies.values) {
+        result.companies.values.forEach((c) => {
+          writer.write({ name: company.name, technology: c.specialites.values.join(' ')});
+        });
+
+        count++;
+        if (count > 2) {
+          writer.end();
+          process.exit();
+        }
+      }
+    });
+  });
