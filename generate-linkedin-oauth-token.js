@@ -36,7 +36,7 @@ const server = http.createServer(function(req, res) {
 }).listen(PORT);
 
 /**
- * 2. As a part of the OAuth flow, we have to exchange the authorization code to obtain 
+ * 2. As a part of the OAuth flow, we have to exchange the authorization code to obtain
  * an access token.
  *
  * @method completeAuthorization
