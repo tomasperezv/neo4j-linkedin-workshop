@@ -1,0 +1,16 @@
+{
+  "name": "neo4j-linkedin-workshop",
+  "version": "1.0.0",
+  "description": "A workshop for generating a neo4j graph based on the Linkedin contacts network",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomasperezv/neo4j-linkedin-workshop.git"
+  },
+  "keywords": [
+    "neo4j",
+    "linkedin"
+  ],
+  "author": "t@0x101.com",
+  "license": "MIT"
+}
