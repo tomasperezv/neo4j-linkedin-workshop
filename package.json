@@ -16,7 +16,7 @@
   "dependencies": {
     "csv-parser": "^1.12.1",
     "csv-write-stream": "^2.0.0",
-    "github-api": "^3.0.0",
+    "github-api": "git+https://git@github.com/tomasperezv/github.git#feature/add_followers_endpoint",
     "node-linkedin": "^0.5.6"
   }
 }
