@@ -16,22 +16,36 @@ const linkedinApiClient = require('./core/linkedin');
  * @method writeDataExport
  */
 const writeDataExport = (data) => {
-  const writer = csvWriter();
-  writer.pipe(fs.createWriteStream('./dataset/network.csv'));
-  writer.write({ name: 'test', technology: 'JARL'});
+  //const writer = csvWriter();
+  //writer.pipe(fs.createWriteStream('./dataset/network.csv'));
+  console.log(data.followers['oscarsj'].orgs[0]);
 };
 
 const result = githubApiClient()
   .then((data) => {
+
+    let pending = 0;
+    const write = (data) => {
+      pending--;
+
+      if (pending === 0) {
+        writeDataExport(data);
+      }
+    };
+
     for (let login in data.followers) {
       const follower = data.followers[login];
       for (let j = 0; j < follower.orgs.length; j++) {
+        pending++;
+
         const org = follower.orgs[j];
         linkedinApiClient(org.login)
           .then(company => {
             if (company !== null && company.specialties) {
-              console.log(company.specialties.values);
+              follower.orgs[j].linkedin = company;
             }
+
+            write(data);
           });
       }
     }
