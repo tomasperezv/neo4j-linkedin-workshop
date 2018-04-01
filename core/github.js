@@ -11,11 +11,40 @@ const gh = new GitHub({
   token: githubConfig.accessToken
 });
 
-module.exports = () => {
-  gh.getUser().listFollowers()
-    .then((orgs) => {
-      console.log(`Obtained your list of Github followers: ${orgs.data.length}`);
-    })
+let result = {
+  followers: {},
+  orgs: {}
 };
 
+module.exports = () =>
+  gh.getUser().listFollowers()
+    .then((followers) => {
+      console.log(`Obtained your list of Github followers: ${followers.data.length}`);
 
+      followers.data.forEach(follower => {
+        result.followers[follower.login] = follower;
+        result.followers[follower.login].orgs = [];
+      });
+
+      return Promise.all(
+        followers.data.map((follower) => {
+          return new Promise(resolve => {
+            gh.getUser(follower.login).listOrgs()
+              .then(orgs => {
+                result.followers[follower.login].orgs = orgs.data;
+                resolve(orgs);
+              });
+          });
+        })
+      );
+    })
+    .then((orgs) => {
+      console.log(`Combining list of followers with their associated organization`);
+
+      orgs = orgs.map((org) => org.data);
+      orgs = orgs.reduce((acc, val) => acc.concat(val), []);
+
+      result.orgs = orgs;
+
+      return result;
+  });
