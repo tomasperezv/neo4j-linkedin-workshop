@@ -1,39 +1,41 @@
 /**
- * Imports the network of contacts from the Linkedin API.
+ * Imports the network of contacts from the Github API
  *
  * @see https://developer.linkedin.com/docs/oauth2
  * @see https://www.npmjs.com/package/node-linkedin
  */
 const fs = require('fs');
-const csv = require('csv-parser');
 const csvWriter = require('csv-write-stream');
-const config = require('./config/my-linkedin-app.json');
+const githubApiClient = require('./core/github');
+const linkedinApiClient = require('./core/linkedin');
 
-const writer = csvWriter();
-writer.pipe(fs.createWriteStream('./dataset/network.csv'));
+/**
+ * Writes the data to a local CSV file after completing the fetch process
+ * from the Github and Linkedin APIs.
+ *
+ * @method writeDataExport
+ */
+const writeDataExport = (data) => {
+  const writer = csvWriter();
+  writer.pipe(fs.createWriteStream('./dataset/network.csv'));
+  writer.write({ name: 'test', technology: 'JARL'});
+};
 
-const Linkedin = require('node-linkedin')(config.clientId, config.clientSecret, config.redirectUri);
-
-const linkedinApiClient = Linkedin.init(config.accessToken);
-
-let count = 0;
-
-fs.createReadStream('./dataset/startups1.csv')
-  .pipe(csv())
-  .on('data', (company) => {
-    linkedinApiClient.companies_search.name(company.name, 1, function(err, result) {
-      console.log('Processing ' + company.name);
-      console.log(result);
-      if (result && result.companies && result.companies.values) {
-        result.companies.values.forEach((c) => {
-          writer.write({ name: company.name, technology: c.specialites.values.join(' ')});
-        });
-
-        count++;
-        if (count > 2) {
-          writer.end();
-          process.exit();
-        }
+const result = githubApiClient()
+  .then((data) => {
+    for (let login in data.followers) {
+      const follower = data.followers[login];
+      for (let j = 0; j < follower.orgs.length; j++) {
+        const org = follower.orgs[j];
+        linkedinApiClient(org.login)
+          .then(company => {
+            if (company !== null && company.specialties) {
+              console.log(company.specialties.values);
+            }
+          });
       }
-    });
+    }
+  })
+  .catch((error) => {
+    console.log('Something went wrong fetching information from Github or Linkedin APIs', error);
   });
