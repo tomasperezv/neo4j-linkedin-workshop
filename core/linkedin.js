@@ -10,7 +10,6 @@ const linkedinApiClient = Linkedin.init(linkedinConfig.accessToken);
 module.exports = (name) => {
   return new Promise(resolve => {
     linkedinApiClient.companies_search.name(name, 1, (err, result) => {
-      console.log('querying for ' + name);
       let company = null;
       if (result && result.companies && result.companies.values) {
         company = result.companies.values[0];
