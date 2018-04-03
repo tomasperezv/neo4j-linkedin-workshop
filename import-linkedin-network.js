@@ -16,9 +16,14 @@ const linkedinApiClient = require('./core/linkedin');
  * @method writeDataExport
  */
 const writeDataExport = (data) => {
-  //const writer = csvWriter();
-  //writer.pipe(fs.createWriteStream('./dataset/network.csv'));
-  console.log(data.followers['oscarsj'].orgs[0]);
+  const writer = csvWriter();
+  writer.pipe(fs.createWriteStream('./dataset/users.csv'));
+
+  for (let login in data.followers) {
+    writer.write({ login,  id: data.followers[login].id });
+  }
+
+  writer.end();
 };
 
 const result = githubApiClient()
