@@ -19,33 +19,32 @@ const writeDataExport = (data) => {
   const writer = csvWriter();
   writer.pipe(fs.createWriteStream('./dataset/users.csv'));
 
-  for (let login in data.followers) {
-    writer.write({ login,  id: data.followers[login].id });
+  for (const login in data.followers) {
+    writer.write({ login, id: data.followers[login].id });
   }
 
   writer.end();
 };
 
-const result = githubApiClient()
+githubApiClient()
   .then((data) => {
-
     let pending = 0;
-    const write = (data) => {
+    const write = (chunk) => {
       pending--;
 
       if (pending === 0) {
-        writeDataExport(data);
+        writeDataExport(chunk);
       }
     };
 
-    for (let login in data.followers) {
+    for (const login in data.followers) {
       const follower = data.followers[login];
       for (let j = 0; j < follower.orgs.length; j++) {
         pending++;
 
         const org = follower.orgs[j];
         linkedinApiClient(org.login)
-          .then(company => {
+          .then((company) => {
             if (company !== null && company.specialties) {
               follower.orgs[j].linkedin = company;
             }
@@ -56,5 +55,6 @@ const result = githubApiClient()
     }
   })
   .catch((error) => {
+    // eslint-disable-next-line no-console
     console.log('Something went wrong fetching information from Github or Linkedin APIs', error);
   });

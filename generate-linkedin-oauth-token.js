@@ -9,17 +9,19 @@
 const http = require('http');
 const url = require('url');
 const requestInterface = require('https');
+const querystring = require('querystring');
 
 const config = require('./config/my-linkedin-app.json');
+
 const PORT = 3232;
 
 // 1. Spawn a local webserver that will be used to capture the oauth access token
-const server = http.createServer(function(req, res) {
+http.createServer((req, res) => {
   // Read the access token from the URI params
   const params = url.parse(req.url, true).query;
 
   // Write a valid response for the browser
-  res.writeHead(200, {'Content-Type': 'application/json'});
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.write(JSON.stringify({ success: true }));
   res.end();
 
@@ -27,11 +29,12 @@ const server = http.createServer(function(req, res) {
     return;
   }
 
-  const remoteAddress = req.connection.remoteAddress;
+  const { connection: { remoteAddress } } = req;
+  // eslint-disable-next-line no-console
   console.log(`Client visiting from ${remoteAddress}`);
 
   if (typeof params.code !== 'undefined') {
-    exchangeAuthorizationCode(params.code);
+    exchangeAuthorizationCode(params.code); // eslint-disable-line no-use-before-define
   }
 }).listen(PORT);
 
@@ -43,18 +46,18 @@ const server = http.createServer(function(req, res) {
  * @param {code}
  */
 const exchangeAuthorizationCode = (code) => {
-  console.log(`Processing callback, exchanging code for obtaining an access token`)
+  // eslint-disable-next-line no-console
+  console.log('Processing callback, exchanging code for obtaining an access token');
 
-  const querystring = require('querystring');
   const data = querystring.stringify({
     grant_type: 'authorization_code',
     code,
     redirect_uri: config.redirectUri,
     client_id: config.clientId,
-    client_secret: config.clientSecret,
+    client_secret: config.clientSecret
   });
 
-  console.log(data);
+  console.log(data); // eslint-disable-line no-console
 
   const options = {
     host: 'www.linkedin.com',
@@ -67,14 +70,15 @@ const exchangeAuthorizationCode = (code) => {
     }
   };
 
-  const req = requestInterface.request(options, function(response) {
+  const req = requestInterface.request(options, (response) => {
     let body = '';
     response.setEncoding('utf8');
-    response.on('data', function (chunk) {
+    response.on('data', (chunk) => {
       body += chunk;
     });
 
     response.on('end', () => {
+      // eslint-disable-next-line no-console
       console.log(`*** Exchange completed, update the configuration with your access token value:
 ${JSON.parse(body).access_token}`);
 
@@ -88,8 +92,9 @@ ${JSON.parse(body).access_token}`);
 
 // State is a unique string value used to prevent CSRF
 // Not relevant for our use case but required by Linkedin API.
-const state = Math.floor(Math.random(0, 1000)*10000000);
+const state = Math.floor(Math.random(0, 1000) * 10000000);
 
+// eslint-disable-next-line no-console
 console.log(`
 *** Generate Linkedin OAuth Token
 Please, go to https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&state=${state}
