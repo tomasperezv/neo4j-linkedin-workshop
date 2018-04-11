@@ -8,7 +8,7 @@ const Linkedin = require('node-linkedin')(linkedinConfig.clientId, linkedinConfi
 const linkedinApiClient = Linkedin.init(linkedinConfig.accessToken);
 
 module.exports = (name) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     linkedinApiClient.companies_search.name(name, 1, (err, result) => {
       let company = null;
       if (result && result.companies && result.companies.values) {

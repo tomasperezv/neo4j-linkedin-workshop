@@ -11,7 +11,7 @@ const gh = new GitHub({
   token: githubConfig.accessToken
 });
 
-let result = {
+const result = {
   followers: {},
   orgs: {}
 };
@@ -19,9 +19,10 @@ let result = {
 module.exports = () =>
   gh.getUser().listFollowers()
     .then((followers) => {
+      // eslint-disable-next-line
       console.log(`Obtained your list of Github followers: ${followers.data.length}`);
 
-      followers.data.forEach(follower => {
+      followers.data.forEach((follower) => {
         result.followers[follower.login] = follower;
         result.followers[follower.login].orgs = [];
       });
@@ -30,21 +31,21 @@ module.exports = () =>
         followers.data.map((follower) => {
           return new Promise(resolve => {
             gh.getUser(follower.login).listOrgs()
-              .then(orgs => {
+              .then((orgs) => {
                 result.followers[follower.login].orgs = orgs.data;
                 resolve(orgs);
               });
           });
-        })
-      );
+        }));
     })
-    .then((orgs) => {
-      console.log(`Combining list of followers with their associated organization`);
+    .then((rawOrgs) => {
+      // eslint-disable-next-line no-console
+      console.log('Combining list of followers with their associated organization');
 
-      orgs = orgs.map((org) => org.data);
+      let orgs = rawOrgs.map(org => org.data);
       orgs = orgs.reduce((acc, val) => acc.concat(val), []);
 
       result.orgs = orgs;
 
       return result;
-  });
+});
